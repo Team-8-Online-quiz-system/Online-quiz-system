@@ -1,0 +1,5 @@
+build/
+quiz
+quiz.exe
+*.o
+output.txt
