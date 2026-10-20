@@ -1,8 +1,8 @@
 #include "console_ui.hpp"
 
+#include <cctype>
 #include <istream>
 #include <ostream>
-#include <string>
 
 namespace oqs::ui {
 
@@ -45,6 +45,40 @@ std::optional<StartChoice> promptStart(std::istream& in, std::ostream& out) {
             return StartChoice::Exit;
         }
         out << "Invalid choice. Please enter 1 or 2.\n\n";
+    }
+}
+
+bool isValidPlayerName(const std::string& name) {
+    if (name.empty() || name.size() > kMaxNameLength) {
+        return false;
+    }
+    for (const char c : name) {
+        const auto uc = static_cast<unsigned char>(c);
+        if (!std::isalnum(uc) && c != ' ' && c != '_' && c != '-') {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::optional<std::string> promptPlayerName(std::istream& in, std::ostream& out) {
+    std::string line;
+    while (true) {
+        out << "Enter your name (1-" << kMaxNameLength
+            << " letters, digits, spaces, _ or -): ";
+        if (!std::getline(in, line)) {
+            out << '\n';
+            return std::nullopt;
+        }
+        const std::string name = trim(line);
+        if (isValidPlayerName(name)) {
+            return name;
+        }
+        if (name.empty()) {
+            out << "Name cannot be empty. Please try again.\n";
+        } else {
+            out << "Invalid name. Please try again.\n";
+        }
     }
 }
 

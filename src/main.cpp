@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "console_ui.hpp"
+#include "session.hpp"
 
 int main() {
     using namespace oqs;
@@ -13,6 +14,17 @@ int main() {
         return 0;
     }
 
-    std::cout << "\nStarting quiz...\n";
+    const auto name = ui::promptPlayerName(std::cin, std::cout);
+    if (!name) {
+        std::cout << "Goodbye!\n";
+        return 0;
+    }
+
+    // The question count comes from the question bank once feature/question-bank is merged.
+    SessionState session = startSession(*name, 0);
+    std::cout << "\nWelcome, " << session.playerName << "! Your score starts at "
+              << session.score << ".\n";
+
+    endSession(session);
     return 0;
 }
