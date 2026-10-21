@@ -1,5 +1,6 @@
 #include "scoring.hpp"
 
+#include <ostream>
 #include <limits>
 #include <stdexcept>
 
@@ -14,6 +15,18 @@ int updateScore(int currentScore, bool isCorrect) {
         throw std::overflow_error("The quiz score cannot be increased further.");
     }
     return currentScore + (isCorrect ? 1 : 0);
+}
+
+void showFeedback(std::ostream& out, bool isCorrect, int correctIndex) {
+    if (isCorrect) {
+        out << "Correct!\n";
+        return;
+    }
+
+    const char correctLetter = correctIndex >= 0 && correctIndex <= 25
+                                   ? static_cast<char>('A' + correctIndex)
+                                   : '?';
+    out << "Incorrect. The correct answer was " << correctLetter << ".\n";
 }
 
 }  // namespace oqs
