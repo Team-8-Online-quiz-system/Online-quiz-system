@@ -82,4 +82,13 @@ std::optional<std::string> promptPlayerName(std::istream& in, std::ostream& out)
     }
 }
 
+std::string formatProgress(std::size_t questionIndex, std::size_t totalQuestions) {
+    return "Question " + std::to_string(questionIndex + 1) + " of " +
+           std::to_string(totalQuestions);
+}
+
+void showProgress(std::ostream& out, const SessionState& session) {
+    out << formatProgress(session.currentQuestionIndex, session.totalQuestions) << '\n';
+}
+
 }  // namespace oqs::ui

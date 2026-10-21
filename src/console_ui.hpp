@@ -6,6 +6,8 @@
 #include <optional>
 #include <string>
 
+#include "session.hpp"
+
 namespace oqs::ui {
 
 enum class StartChoice { Start, Exit };
@@ -25,6 +27,11 @@ bool isValidPlayerName(const std::string& name);
 // Prompts until a valid player name is entered (OQS-F-002).
 // Returns the trimmed name, or std::nullopt if input ends.
 std::optional<std::string> promptPlayerName(std::istream& in, std::ostream& out);
+
+// "Question 3 of 10", with the question number starting at 1 (OQS-F-014).
+std::string formatProgress(std::size_t questionIndex, std::size_t totalQuestions);
+
+void showProgress(std::ostream& out, const SessionState& session);
 
 }  // namespace oqs::ui
 
