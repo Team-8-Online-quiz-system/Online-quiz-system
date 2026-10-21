@@ -6,6 +6,22 @@
 namespace oqs {
 namespace {
 
+constexpr std::size_t kMaxSupportedOptions = 4;
+
+std::string answerChoices(std::size_t optionCount) {
+    const std::size_t count = optionCount < kMaxSupportedOptions
+                                  ? optionCount
+                                  : kMaxSupportedOptions;
+    if (count == 0) {
+        return "no available options";
+    }
+    if (count == 1) {
+        return std::string(1, optionLabel(0)) + " or 1";
+    }
+    return std::string("A-") + optionLabel(count - 1) + " or 1-" +
+           static_cast<char>('0' + count);
+}
+
 std::string trimWhitespace(const std::string& input) {
     std::size_t first = 0;
     while (first < input.size() &&
@@ -67,6 +83,31 @@ std::optional<int> parseAnswer(const std::string& input, std::size_t optionCount
     }
 
     return std::nullopt;
+}
+
+std::optional<int> promptAnswer(std::istream& in, std::ostream& out,
+                                std::size_t optionCount) {
+    if (optionCount == 0) {
+        return std::nullopt;
+    }
+
+    const std::string choices = answerChoices(optionCount);
+    const std::string prompt = "Your answer (" + choices + "): ";
+    const std::string error = "Invalid answer. Please enter " + choices + ".";
+
+    std::string line;
+    while (true) {
+        out << prompt;
+        if (!std::getline(in, line)) {
+            return std::nullopt;
+        }
+
+        const std::optional<int> answer = parseAnswer(line, optionCount);
+        if (answer.has_value()) {
+            return answer;
+        }
+        out << error << '\n';
+    }
 }
 
 }  // namespace oqs

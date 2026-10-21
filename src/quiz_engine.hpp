@@ -2,6 +2,7 @@
 #define OQS_QUIZ_ENGINE_HPP
 
 #include <cstddef>
+#include <istream>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -18,6 +19,10 @@ void displayQuestion(std::ostream& out, const std::string& text,
 
 // OQS-F-008: accepts a valid letter or digit and returns a zero-based index.
 std::optional<int> parseAnswer(const std::string& input, std::size_t optionCount);
+
+// OQS-F-009: retries invalid input and returns nullopt when input ends.
+std::optional<int> promptAnswer(std::istream& in, std::ostream& out,
+                                std::size_t optionCount);
 
 }  // namespace oqs
 
