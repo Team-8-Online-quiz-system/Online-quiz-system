@@ -1,0 +1,33 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for unsafe input functions (OQS-SR-001)
+        run: |
+          if grep -rnE '\bgets\(|scanf\("%s"|\bstrcpy\(' src tests; then
+            echo "Unsafe input function found."
+            exit 1
+          fi
+
+      - name: Build
+        run: make
+
+      - name: Unit tests
+        run: make test
+
+      - name: Smoke test
+        run: |
+          printf '1\nTeam8\n' | ./quiz | tee output.txt
+          grep -q "Welcome, Team8" output.txt
