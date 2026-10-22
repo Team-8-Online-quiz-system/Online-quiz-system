@@ -1,7 +1,7 @@
 #include "scoring.hpp"
 
-#include <ostream>
 #include <limits>
+#include <ostream>
 #include <stdexcept>
 
 namespace oqs {
@@ -27,6 +27,18 @@ void showFeedback(std::ostream& out, bool isCorrect, int correctIndex) {
                                    ? static_cast<char>('A' + correctIndex)
                                    : '?';
     out << "Incorrect. The correct answer was " << correctLetter << ".\n";
+}
+
+bool allQuestionsAnswered(const std::vector<int>& responses) {
+    if (responses.empty()) {
+        return false;
+    }
+    for (const int response : responses) {
+        if (response == -1) {
+            return false;
+        }
+    }
+    return true;
 }
 
 }  // namespace oqs

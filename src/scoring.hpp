@@ -1,6 +1,7 @@
 #ifndef OQS_SCORING_HPP
 #define OQS_SCORING_HPP
 
+#include <cstddef>
 #include <iosfwd>
 #include <string>
 #include <vector>
