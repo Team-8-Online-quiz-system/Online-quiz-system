@@ -15,11 +15,13 @@ std::string answerChoices(std::size_t optionCount) {
     if (count == 0) {
         return "no available options";
     }
+
+    const char lastLabel = optionLabel(count - 1);
+    const std::string lastDigit(1, static_cast<char>('0' + count));
     if (count == 1) {
         return std::string(1, optionLabel(0)) + " or 1";
     }
-    return std::string("A-") + optionLabel(count - 1) + " or 1-" +
-           static_cast<char>('0' + count);
+    return std::string("A-") + lastLabel + " or 1-" + lastDigit;
 }
 
 std::string trimWhitespace(const std::string& input) {
@@ -108,6 +110,17 @@ std::optional<int> promptAnswer(std::istream& in, std::ostream& out,
         }
         out << error << '\n';
     }
+}
+
+bool recordResponse(std::vector<int>& responses, std::size_t questionIndex,
+                    int option) {
+    if (questionIndex >= responses.size() || option < 0 ||
+        responses[questionIndex] != -1) {
+        return false;
+    }
+
+    responses[questionIndex] = option;
+    return true;
 }
 
 }  // namespace oqs

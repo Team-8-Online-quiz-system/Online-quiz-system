@@ -24,6 +24,10 @@ std::optional<int> parseAnswer(const std::string& input, std::size_t optionCount
 std::optional<int> promptAnswer(std::istream& in, std::ostream& out,
                                 std::size_t optionCount);
 
+// OQS-F-010: records one answer per question.
+bool recordResponse(std::vector<int>& responses, std::size_t questionIndex,
+                    int option);
+
 }  // namespace oqs
 
 #endif
