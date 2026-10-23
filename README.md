@@ -37,3 +37,7 @@ The Makefile compiles every `src/*.cpp` automatically, so new modules need no bu
 4. Merge after a teammate reviews and approves.
 
 Code must compile cleanly with `-Wall -Wextra -Wpedantic -Werror`. Read input with `std::getline`; `gets`, `scanf("%s")` and `strcpy` are rejected by CI (OQS-SR-001).
+
+## Sprint demos
+
+- [Sprint 1 demo](demo/sprint1-demo.mp4): start the quiz, enter a name, answer every question with feedback and progress, and see the final score.
