@@ -1,6 +1,10 @@
 #include <iostream>
+#include <vector>
 
 #include "console_ui.hpp"
+#include "question_bank.hpp"
+#include "quiz_runner.hpp"
+#include "scoring.hpp"
 #include "session.hpp"
 
 int main() {
@@ -20,10 +24,25 @@ int main() {
         return 0;
     }
 
-    // The question count comes from the question bank once feature/question-bank is merged.
-    SessionState session = startSession(*name, 0);
-    std::cout << "\nWelcome, " << session.playerName << "! Your score starts at "
+    const std::vector<Question> bank = loadQuestions();
+    if (bank.empty()) {
+        std::cerr << "No valid questions could be loaded. Exiting.\n";
+        return 1;
+    }
+
+    SessionState session = startSession(*name, bank.size());
+    std::cout << "\nWelcome, " << session.playerName << "! There are "
+              << session.totalQuestions << " questions. Your score starts at "
               << session.score << ".\n";
+
+    if (!runQuiz(std::cin, std::cout, session, bank)) {
+        std::cout << "Quiz ended before the last question. Goodbye!\n";
+        return 0;
+    }
+
+    const int finalScore = calculateFinalScore(session.acceptedResponses, answerKey(bank));
+    std::cout << '\n';
+    showFinalScore(std::cout, session.playerName, finalScore, session.totalQuestions);
 
     endSession(session);
     return 0;
