@@ -75,7 +75,7 @@ std::vector<Question> loadQuestions() {
 }
 
 const Question& getQuestion(const std::vector<Question>& bank, std::size_t index) {
-    if (index >= bank.size()) {
+    if (!isValidQuestionIndex(bank, index)) {
         throw std::out_of_range("question index is out of range");
     }
     return bank[index];
