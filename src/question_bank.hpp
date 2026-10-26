@@ -25,6 +25,12 @@ std::vector<Question> loadQuestions();
 
 const Question& getQuestion(const std::vector<Question>& bank, std::size_t index);
 
+// OQS-SR-002: true if index < bank.size().
+bool isValidQuestionIndex(const std::vector<Question>& bank, std::size_t index);
+
+// OQS-SR-002: true if 0 <= option < question.options.size().
+bool isValidOptionIndex(const Question& question, int option);
+
 }  // namespace oqs
 
 #endif

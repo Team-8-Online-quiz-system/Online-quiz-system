@@ -81,4 +81,14 @@ const Question& getQuestion(const std::vector<Question>& bank, std::size_t index
     return bank[index];
 }
 
+// OQS-SR-002
+bool isValidQuestionIndex(const std::vector<Question>& bank, std::size_t index) {
+    return index < bank.size();
+}
+
+// OQS-SR-002
+bool isValidOptionIndex(const Question& question, int option) {
+    return option >= 0 && static_cast<std::size_t>(option) < question.options.size();
+}
+
 }  // namespace oqs
