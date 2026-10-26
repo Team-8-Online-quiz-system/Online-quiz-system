@@ -27,11 +27,16 @@ void showWelcome(std::ostream& out) {
         << "test your knowledge. Good luck!\n\n";
 }
 
-std::optional<StartChoice> promptStart(std::istream& in, std::ostream& out) {
+namespace {
+
+// Shows a two-option numbered menu until 1 or 2 is entered.
+// Returns 1 or 2, or std::nullopt if input ends.
+std::optional<int> promptTwoOptionMenu(std::istream& in, std::ostream& out,
+                                       const std::string& first, const std::string& second) {
     std::string line;
     while (true) {
-        out << "1. Start Quiz\n"
-            << "2. Exit\n"
+        out << "1. " << first << '\n'
+            << "2. " << second << '\n'
             << "Enter 1 or 2: ";
         if (!std::getline(in, line)) {
             out << '\n';
@@ -39,13 +44,23 @@ std::optional<StartChoice> promptStart(std::istream& in, std::ostream& out) {
         }
         const std::string choice = trim(line);
         if (choice == "1") {
-            return StartChoice::Start;
+            return 1;
         }
         if (choice == "2") {
-            return StartChoice::Exit;
+            return 2;
         }
         out << "Invalid choice. Please enter 1 or 2.\n\n";
     }
+}
+
+}  // namespace
+
+std::optional<StartChoice> promptStart(std::istream& in, std::ostream& out) {
+    const auto choice = promptTwoOptionMenu(in, out, "Start Quiz", "Exit");
+    if (!choice) {
+        return std::nullopt;
+    }
+    return *choice == 1 ? StartChoice::Start : StartChoice::Exit;
 }
 
 bool isValidPlayerName(const std::string& name) {
@@ -89,6 +104,23 @@ std::string formatProgress(std::size_t questionIndex, std::size_t totalQuestions
 
 void showProgress(std::ostream& out, const SessionState& session) {
     out << formatProgress(session.currentQuestionIndex, session.totalQuestions) << '\n';
+}
+
+std::optional<ReplayChoice> promptReplay(std::istream& in, std::ostream& out) {
+    out << '\n';
+    const auto choice = promptTwoOptionMenu(in, out, "Play again", "Exit");
+    if (!choice) {
+        return std::nullopt;
+    }
+    return *choice == 1 ? ReplayChoice::Replay : ReplayChoice::Exit;
+}
+
+void showGoodbye(std::ostream& out, const std::string& playerName) {
+    if (playerName.empty()) {
+        out << "Goodbye!\n";
+    } else {
+        out << "Thanks for playing, " << playerName << "! Goodbye.\n";
+    }
 }
 
 }  // namespace oqs::ui

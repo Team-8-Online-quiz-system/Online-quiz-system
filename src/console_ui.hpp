@@ -11,6 +11,7 @@
 namespace oqs::ui {
 
 enum class StartChoice { Start, Exit };
+enum class ReplayChoice { Replay, Exit };
 
 constexpr std::size_t kMaxNameLength = 30;
 
@@ -32,6 +33,13 @@ std::optional<std::string> promptPlayerName(std::istream& in, std::ostream& out)
 std::string formatProgress(std::size_t questionIndex, std::size_t totalQuestions);
 
 void showProgress(std::ostream& out, const SessionState& session);
+
+// Shows the Play again / Exit menu after a result (OQS-F-019, OQS-F-020).
+// Returns std::nullopt if input ends.
+std::optional<ReplayChoice> promptReplay(std::istream& in, std::ostream& out);
+
+// Prints the closing message; the name is left out when it is empty.
+void showGoodbye(std::ostream& out, const std::string& playerName);
 
 }  // namespace oqs::ui
 
