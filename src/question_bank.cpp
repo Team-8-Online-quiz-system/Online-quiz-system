@@ -18,27 +18,43 @@ bool isBlank(const std::string& value) {
 
 }  // namespace
 
-bool validateQuestion(const Question& question) {
-    if (isBlank(question.text) || question.text.size() > kMaxQuestionLength ||
-        question.options.size() != kOptionCount || question.correctIndex < 0 ||
-        static_cast<std::size_t>(question.correctIndex) >= kOptionCount) {
-        return false;
+// OQS-SR-003
+std::string questionError(const Question& question) {
+    if (isBlank(question.text)) {
+        return "question text is empty";
     }
-
+    if (question.text.size() > kMaxQuestionLength) {
+        return "question text is longer than 512 characters";
+    }
+    if (question.options.size() != kOptionCount) {
+        return "expected 4 options, found " + std::to_string(question.options.size());
+    }
     for (std::size_t i = 0; i < question.options.size(); ++i) {
-        const std::string& option = question.options[i];
-        if (isBlank(option) || option.size() > kMaxOptionLength) {
-            return false;
+        if (isBlank(question.options[i])) {
+            return "option " + std::to_string(i + 1) + " is empty";
         }
-
+    }
+    for (std::size_t i = 0; i < question.options.size(); ++i) {
+        if (question.options[i].size() > kMaxOptionLength) {
+            return "option " + std::to_string(i + 1) + " is longer than 256 characters";
+        }
+    }
+    for (std::size_t i = 0; i < question.options.size(); ++i) {
         for (std::size_t j = 0; j < i; ++j) {
-            if (option == question.options[j]) {
-                return false;
+            if (question.options[i] == question.options[j]) {
+                return "option " + std::to_string(i + 1) + " duplicates option " + std::to_string(j + 1);
             }
         }
     }
+    if (!isValidOptionIndex(question, question.correctIndex)) {
+        return "correct answer is not one of the options";
+    }
+    return "";
+}
 
-    return true;
+// OQS-F-005
+bool validateQuestion(const Question& question) {
+    return questionError(question).empty();
 }
 
 std::vector<Question> loadQuestions() {
