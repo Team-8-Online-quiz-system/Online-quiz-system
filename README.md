@@ -38,6 +38,19 @@ The Makefile compiles every `src/*.cpp` automatically, so new modules need no bu
 
 Code must compile cleanly with `-Wall -Wextra -Wpedantic -Werror`. Read input with `std::getline`; `gets`, `scanf("%s")` and `strcpy` are rejected by CI (OQS-SR-001).
 
+## Console conventions (OQS-NF-004)
+
+All modules use the same wording so every screen reads the same way:
+
+| Kind | Format | Example |
+|---|---|---|
+| Menu | Numbered options, then a prompt | `1. Start Quiz` / `2. Exit` / `Choose an option (1-2): ` |
+| Prompt | `<Action> (<accepted input>): ` | `Your answer (A-D or 1-4): ` |
+| Error | `Invalid <thing>. Please enter <accepted input>.` and the same prompt again | `Invalid answer. Please enter A-D or 1-4.` |
+| Feedback | One short sentence | `Correct!` / `Incorrect. The correct answer was B.` |
+
+Invalid input never advances the quiz or changes the score.
+
 ## Sprint demos
 
 - [Sprint 1 demo](demo/sprint1-demo.mp4): start the quiz, enter a name, answer every question with feedback and progress, and see the final score.

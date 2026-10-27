@@ -37,7 +37,7 @@ std::optional<int> promptTwoOptionMenu(std::istream& in, std::ostream& out,
     while (true) {
         out << "1. " << first << '\n'
             << "2. " << second << '\n'
-            << "Enter 1 or 2: ";
+            << "Choose an option (1-2): ";
         if (!std::getline(in, line)) {
             out << '\n';
             return std::nullopt;
@@ -89,11 +89,8 @@ std::optional<std::string> promptPlayerName(std::istream& in, std::ostream& out)
         if (isValidPlayerName(name)) {
             return name;
         }
-        if (name.empty()) {
-            out << "Name cannot be empty. Please try again.\n";
-        } else {
-            out << "Invalid name. Please try again.\n";
-        }
+        out << "Invalid name. Please enter 1-" << kMaxNameLength
+            << " letters, digits, spaces, _ or -.\n";
     }
 }
 
