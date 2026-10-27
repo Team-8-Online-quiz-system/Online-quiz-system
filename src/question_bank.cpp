@@ -57,6 +57,23 @@ bool validateQuestion(const Question& question) {
     return questionError(question).empty();
 }
 
+// OQS-SR-003
+std::vector<Question> filterValidQuestions(const std::vector<Question>& records,
+                                           std::ostream& errors) {
+    std::vector<Question> valid;
+    valid.reserve(records.size());
+    for (std::size_t i = 0; i < records.size(); ++i) {
+        const std::string reason = questionError(records[i]);
+        if (reason.empty()) {
+            valid.push_back(records[i]);
+        } else {
+            errors << "Rejected question " << i << ": " << reason << '\n';
+        }
+    }
+    return valid;
+}
+
+// OQS-F-004
 std::vector<Question> loadQuestions() {
     const std::vector<Question> builtInQuestions = {
         {"What is the primary role of a CPU?",
@@ -76,18 +93,7 @@ std::vector<Question> loadQuestions() {
          1},
     };
 
-    std::vector<Question> validQuestions;
-    validQuestions.reserve(builtInQuestions.size());
-
-    for (std::size_t i = 0; i < builtInQuestions.size(); ++i) {
-        if (validateQuestion(builtInQuestions[i])) {
-            validQuestions.push_back(builtInQuestions[i]);
-        } else {
-            std::cerr << "Skipping invalid built-in question at index " << i << '\n';
-        }
-    }
-
-    return validQuestions;
+    return filterValidQuestions(builtInQuestions, std::cerr);
 }
 
 const Question& getQuestion(const std::vector<Question>& bank, std::size_t index) {
