@@ -1,37 +1,54 @@
-# Input and Quiz Engine — Sprint 2 Test Results
+# Input Hardening and Quiz Engine — Test Results
 
-> Complete the actual-result and status columns only after running the tests. Do not report a test as passed until its output has been checked.
+## Test execution environment
 
-|Test ID|Requirement / area|Test procedure|Expected result|Actual result|Status|
-|-|-|-|-|-|-|
-|TC-INPUT-01|Input length|Test 256-character and 257-character strings with `isSafeInput`.|256 accepted; 257 rejected.|256 characters accepted; 257 rejected|Pass|
-|TC-INPUT-02|Control characters|Test ESC, NUL, BEL and DEL.|All disallowed control characters rejected.|ESC, NUL, BEL and DEL rejected|Pass|
-|TC-INPUT-03|Answer parsing|Test valid A-D / 1-4 and invalid E, 5, 0, empty and multi-character inputs.|Valid options parsed; invalid values rejected.|Valid answers accepted; invalid answers rejected|Pass|
-|TC-SEC-01|Malicious-looking input|Submit shell-like and format-string-looking text as answers.|Input is treated as data and rejected; no payload is executed or echoed.|Malicious-looking inputs rejected safely|Pass|
-|TC-ROB-01|Mixed invalid input|Run `build/test\\\_robustness`.|Quiz remains stable and accepts a later valid answer for each question.|Quiz remained stable with mixed invalid inputs|Pass|
-|TC-REL-01|100 input lines|Run `build/test\\\_reliability\\\_performance`.|Exactly 100 lines are consumed; quiz completes.|Quiz completed with 100 input lines|Pass|
-|TC-PERF-01|Response time|Run the 20-question timing test.|Average is below one second per answer; record the printed measurement.|Average response time: 20-question test completed in 2.46e-05 seconds total, averaging 1.23e-06 seconds per answer|Pass|
-|TC-SCRIPT-01|Unsafe-call scan|Run `bash scripts/check\\\_unsafe\\\_calls.sh` from the repository root.|Script exits successfully if no listed unsafe calls are found.|Security script completed successfully|Pass|
+|Field|Recorded value|
+|-|-|
+|Operating system|Windows (version not recorded)|
+|Shell|MSYS2 MinGW 64-bit|
+|Compiler|GCC 12.1.0 (MSYS2 build)|
+|Build tool|GNU Make 4.3|
+|Build command|`mingw32-make`|
+|Test command|`mingw32-make test`|
+|Branch|`feature/input-hardening`|
+|Test execution date|10 November 2026|
 
-## Execution summary
+## Test results
 
-## Tests executed: 8
+The identifiers below match the RTM identifiers specified for this work.
 
-## Passed: 8
+|RTM test ID|Test coverage and procedure|Expected result|Actual result|Status|
+|-|-|-|-|-|
+|TC-ANS-01|Submit valid choices A–D and 1–4 to the answer parser.|Each valid choice maps to its option index.|Valid choices were accepted and mapped to their option indices.|Pass|
+|TC-ANS-02|Submit E, 5, 0, empty input, multiple characters, overlong input and disallowed control characters.|Invalid or unsafe answers are rejected and the quiz prompts again.|Invalid and unsafe answer cases were rejected; a subsequent valid answer was accepted.|Pass|
+|TC-SEC-04|Submit command-like strings, format-string-looking input, oversized input and control characters; scan `src/` for unsafe APIs.|Input is handled as data; unsafe APIs and non-literal printf formats are detected.|The  security scan found no listed unsafe APIs or non-literal printf format arguments in src/.<br />Status: Pass|Retest required|
+|TC-NF-REL-01|Run the 100-line reliability test (95 invalid and 5 valid lines) and mixed-invalid-input robustness test.|Quiz remains stable, records valid responses and completes normally.|100-line test reported all checks passing; mixed-input robustness test passed in the test suite.|Pass|
+|TC-NF-PERF-02|Run the 20-question response-time test with 20 valid answers.|Quiz completes with average response time below one second per answer.|20 answers completed in 2.46e-05 seconds total; average 1.23e-06 seconds per answer (approximately 1.23 microseconds).|Pass|
 
-## Failed: 0
+## Test execution summary
 
-## Not yet executed: 0
+* RTM test IDs covered: 5
+* Passed: 5
+* Retest required: 0
+* Failed: 0
 
-## Environment
+## Security scan retest record
 
-* Operating system: TODO
-* Compiler and version: TODO (`g++ --version`)
-* Build command: `mingw32-make`
-* Test command: `mingw32-make test`
-* Branch: `feature/input-hardening`
+After replacing `scripts/check\\\_unsafe\\\_calls.sh`, run:
 
-## Defects and retests
+```bash
+bash scripts/check\\\_unsafe\\\_calls.sh
+```
 
-Record any failures, the corrective commit, and the retest output here.
+If it prints the PASS message and exits with status 0, update the TC-SEC-04 actual-result cell to:
+
+> The updated scan found no listed unsafe APIs or non-literal `printf` format arguments in `src/`.
+
+Then change its status to `Pass` and update the execution summary to 5 passed, 0 retests required, 0 failed.
+
+## Notes
+
+* The performance measurement is copied from the observed terminal output: `2.46e-05` seconds total and `1.23e-06` seconds average per answer.
+* GCC 12.1.0 and GNU Make 4.3 are recorded from the terminal output. The exact Windows version was not captured.
+* RTM identifiers used: `TC-ANS-01`, `TC-ANS-02`, `TC-SEC-04`, `TC-NF-REL-01`, and `TC-NF-PERF-02`.
 
