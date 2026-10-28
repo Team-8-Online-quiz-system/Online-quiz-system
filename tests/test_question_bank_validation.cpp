@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -184,6 +185,51 @@ void testLoadQuestions() {
     check(allValid, "all questions returned by loadQuestions are valid");
 }
 
+void testStartupPerformance() {
+    // TC-NF-PERF-01 / OQS-NF-001: Build 1,000 valid generated questions
+    std::vector<oqs::Question> largeBank;
+    largeBank.reserve(1000);
+    for (int i = 0; i < 1000; ++i) {
+        largeBank.push_back({
+            "Generated question #" + std::to_string(i) + " for performance testing?",
+            {"Choice Alpha " + std::to_string(i),
+             "Choice Beta " + std::to_string(i),
+             "Choice Gamma " + std::to_string(i),
+             "Choice Delta " + std::to_string(i)},
+            i % 4
+        });
+    }
+
+    std::ostringstream discard;
+    const auto startFilter = std::chrono::steady_clock::now();
+    const std::vector<oqs::Question> filtered = oqs::filterValidQuestions(largeBank, discard);
+    const auto endFilter = std::chrono::steady_clock::now();
+    const auto filterDurationMs = std::chrono::duration_cast<std::chrono::milliseconds>(endFilter - startFilter).count();
+
+    std::cout << "[INFO] filterValidQuestions(1,000 items) elapsed: " << filterDurationMs << " ms\n";
+    check(filtered.size() == 1000, "1,000 valid questions are all accepted");
+    check(filterDurationMs < 2000, "1,000 question validation startup time is under 2 seconds (TC-NF-PERF-01)");
+
+    // Time loadQuestions() 10 times; each must be under 2 seconds
+    bool allLoadsFast = true;
+    long long maxLoadMs = 0;
+    for (int run = 0; run < 10; ++run) {
+        const auto startLoad = std::chrono::steady_clock::now();
+        const std::vector<oqs::Question> loaded = oqs::loadQuestions();
+        const auto endLoad = std::chrono::steady_clock::now();
+        const auto loadDurationMs = std::chrono::duration_cast<std::chrono::milliseconds>(endLoad - startLoad).count();
+        if (loadDurationMs > maxLoadMs) {
+            maxLoadMs = loadDurationMs;
+        }
+        if (loadDurationMs >= 2000 || loaded.size() != 5) {
+            allLoadsFast = false;
+        }
+    }
+
+    std::cout << "[INFO] loadQuestions() 10 runs max elapsed: " << maxLoadMs << " ms\n";
+    check(allLoadsFast, "loadQuestions() 10 iterations each complete in under 2 seconds (OQS-NF-001)");
+}
+
 }  // namespace
 
 int main() {
@@ -192,6 +238,7 @@ int main() {
     testBoundsChecking();
     testGetQuestion();
     testLoadQuestions();
+    testStartupPerformance();
 
     std::cout << (failures == 0 ? "\nAll validation tests passed.\n" : "\nSome tests failed.\n");
     return failures == 0 ? 0 : 1;
