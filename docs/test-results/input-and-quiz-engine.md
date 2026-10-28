@@ -11,7 +11,7 @@
 | Build command | `mingw32-make` |
 | Test command | `mingw32-make test` |
 | Branch | `feature/input-hardening` |
-| Test execution date | 10 November 2026 |
+| Test execution date |28 October 2026|
 
 ## Test results
 
