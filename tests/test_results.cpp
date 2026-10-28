@@ -1,4 +1,8 @@
+#include "question_bank.hpp"
+#include "quiz_engine.hpp"
+#include "quiz_runner.hpp"
 #include "scoring.hpp"
+#include "session.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -77,12 +81,65 @@ void testScoreBounds() {
     }
 }
 
+void testReplayReset() {
+    const std::vector<int> key = oqs::answerKey(oqs::loadQuestions());
+    oqs::SessionState session = oqs::startSession("Sarah", key.size());
+    for (std::size_t i = 0; i < key.size(); ++i) {
+        oqs::recordResponse(session.acceptedResponses, i, 0);
+        session.score = oqs::updateScore(session.score, oqs::evaluateAnswer(key[i], 0));
+        oqs::advanceQuestion(session);
+    }
+    check(session.score > 0 && session.completed,
+          "first attempt records answers and reaches completion");
+
+    oqs::resetSession(session);
+    check(session.score == 0, "replay reset clears the score");
+    check(session.currentQuestionIndex == 0, "replay reset returns to the first question");
+    check(session.acceptedResponses == std::vector<int>(key.size(), -1),
+          "replay reset marks every response unanswered");
+    check(!session.completed, "replay reset opens a new attempt");
+
+    const std::vector<int> replayAnswers = {1, 2, 1, 0, 1};
+    for (std::size_t i = 0; i < replayAnswers.size(); ++i) {
+        check(oqs::recordResponse(session.acceptedResponses, i, replayAnswers[i]),
+              "replay accepts response " + std::to_string(i + 1));
+        session.score = oqs::updateScore(
+            session.score, oqs::evaluateAnswer(key[i], replayAnswers[i]));
+        oqs::advanceQuestion(session);
+    }
+    const int replayScore = oqs::calculateFinalScore(session.acceptedResponses, key);
+    check(session.completed && session.score == replayScore && replayScore == 3,
+          "replay computes its own score of 3 out of 5");
+    check(oqs::formatPercentage(oqs::calculatePercentage(replayScore, key.size())) == "60.0%",
+          "replay percentage reflects only the second attempt");
+}
+
+void testRealQuestionBank() {
+    const auto bank = oqs::loadQuestions();
+    const auto key = oqs::answerKey(bank);
+    const std::vector<int> allCorrect = {1, 0, 1, 2, 1};
+    const std::vector<int> mostlyIncorrect = {0, 0, 0, 0, 0};
+
+    const int perfectScore = oqs::calculateFinalScore(allCorrect, key);
+    check(perfectScore == 5, "B,A,B,C,B scores 5 against the real question bank");
+    check(oqs::formatPercentage(oqs::calculatePercentage(perfectScore, bank.size())) ==
+              "100.0%",
+          "B,A,B,C,B produces 100.0 percent");
+
+    const int lowScore = oqs::calculateFinalScore(mostlyIncorrect, key);
+    check(lowScore == 1, "A,A,A,A,A scores 1 against the real question bank");
+    check(oqs::formatPercentage(oqs::calculatePercentage(lowScore, bank.size())) == "20.0%",
+          "A,A,A,A,A produces 20.0 percent");
+}
+
 }  // namespace
 
 int main() {
     testKnownPercentages();
     testResultSummary();
     testScoreBounds();
+    testReplayReset();
+    testRealQuestionBank();
     std::cout << (failures == 0 ? "\nAll result tests passed.\n"
                                 : "\nSome result tests failed.\n");
     return failures == 0 ? 0 : 1;
