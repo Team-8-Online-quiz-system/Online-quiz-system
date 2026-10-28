@@ -15,6 +15,8 @@ make clean
 
 On Windows with MSYS2, use `mingw32-make` in place of `make`.
 
+In an interactive terminal the quiz runs as a styled TUI: a boxed title screen, a fresh screen per question with a progress bar and live score, coloured option labels, green/red feedback and a result panel. It uses only ANSI escape codes from the standard library, with no third-party packages. Output is plain text automatically when it is piped (tests, CI) or when `NO_COLOR` is set; `./quiz --plain` forces plain mode.
+
 ## Project layout
 
 | Path | Module (SAD 3.4) | Owner |
