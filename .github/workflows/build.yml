@@ -29,7 +29,11 @@ jobs:
 
       - name: Smoke test
         run: |
-          printf '1\nTeam8\nB\nA\nB\nC\nB\n' | ./quiz | tee output.txt
+          printf '1\nTeam8\nB\nA\nB\nC\nB\n1\nA\nA\nA\nA\nA\n2\n' | ./quiz --plain | tee output.txt
           grep -q "Welcome, Team8" output.txt
           grep -q "Question 5 of 5" output.txt
           grep -q "Final score for Team8: 5 / 5" output.txt
+          grep -q "Starting a new attempt. Your score is back to 0." output.txt
+          grep -q "Final score for Team8: 1 / 5" output.txt
+          grep -q "Thanks for playing, Team8! Goodbye." output.txt
+          if grep -q $'\x1b\[' output.txt; then echo "Piped output must be plain"; exit 1; fi
