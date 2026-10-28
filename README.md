@@ -15,6 +15,8 @@ make clean
 
 On Windows with MSYS2, use `mingw32-make` in place of `make`.
 
+In an interactive terminal the quiz runs as a styled TUI: a boxed title screen, a fresh screen per question with a progress bar and live score, coloured option labels, green/red feedback and a result panel. It uses only ANSI escape codes from the standard library, with no third-party packages. Output is plain text automatically when it is piped (tests, CI) or when `NO_COLOR` is set; `./quiz --plain` forces plain mode.
+
 ## Project layout
 
 | Path | Module (SAD 3.4) | Owner |
@@ -37,6 +39,19 @@ The Makefile compiles every `src/*.cpp` automatically, so new modules need no bu
 4. Merge after a teammate reviews and approves.
 
 Code must compile cleanly with `-Wall -Wextra -Wpedantic -Werror`. Read input with `std::getline`; `gets`, `scanf("%s")` and `strcpy` are rejected by CI (OQS-SR-001).
+
+## Console conventions (OQS-NF-004)
+
+All modules use the same wording so every screen reads the same way:
+
+| Kind | Format | Example |
+|---|---|---|
+| Menu | Numbered options, then a prompt | `1. Start Quiz` / `2. Exit` / `Choose an option (1-2): ` |
+| Prompt | `<Action> (<accepted input>): ` | `Your answer (A-D or 1-4): ` |
+| Error | `Invalid <thing>. Please enter <accepted input>.` and the same prompt again | `Invalid answer. Please enter A-D or 1-4.` |
+| Feedback | One short sentence | `Correct!` / `Incorrect. The correct answer was B.` |
+
+Invalid input never advances the quiz or changes the score.
 
 ## Sprint demos
 
