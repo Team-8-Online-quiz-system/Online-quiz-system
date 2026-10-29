@@ -68,6 +68,11 @@ bool waitForEnter(std::istream& in, std::ostream& out, const std::string& action
 // Prints result lines; styled output draws them in a titled box.
 void showResultPanel(std::ostream& out, const std::vector<std::string>& lines);
 
+// As above; styled output also draws a percentage bar and a short rating.
+// Plain output is the same as without the percentage.
+void showResultPanel(std::ostream& out, const std::vector<std::string>& lines,
+                     double percentage);
+
 // Shows the Play again / Exit menu after a result (OQS-F-019, OQS-F-020).
 // Returns std::nullopt if input ends.
 std::optional<ReplayChoice> promptReplay(std::istream& in, std::ostream& out);
