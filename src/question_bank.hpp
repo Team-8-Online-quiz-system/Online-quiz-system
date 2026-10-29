@@ -2,6 +2,7 @@
 #define OQS_QUESTION_BANK_HPP
 
 #include <cstddef>
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -17,13 +18,36 @@ struct Question {
     int correctIndex = -1;
 };
 
+// OQS-SR-003: the reason a record is invalid, or "" if it is valid.
+// Reasons, checked in this order (N and M are 1-based):
+//   "question text is empty"
+//   "question text is longer than 512 characters"
+//   "expected 4 options, found <count>"
+//   "option <N> is empty"
+//   "option <N> is longer than 256 characters"
+//   "option <N> duplicates option <M>"
+//   "correct answer is not one of the options"
+std::string questionError(const Question& question);
+
 // OQS-F-005
 bool validateQuestion(const Question& question);
+
+// OQS-SR-003: returns the records that pass validation, in their original order.
+// Each rejected record is reported on `errors` as one line:
+//   "Rejected question <i>: <reason>"   (i is the 0-based position in `records`)
+std::vector<Question> filterValidQuestions(const std::vector<Question>& records,
+                                           std::ostream& errors);
 
 // OQS-F-004
 std::vector<Question> loadQuestions();
 
 const Question& getQuestion(const std::vector<Question>& bank, std::size_t index);
+
+// OQS-SR-002: true if index < bank.size().
+bool isValidQuestionIndex(const std::vector<Question>& bank, std::size_t index);
+
+// OQS-SR-002: true if 0 <= option < question.options.size().
+bool isValidOptionIndex(const Question& question, int option);
 
 }  // namespace oqs
 

@@ -18,29 +18,62 @@ bool isBlank(const std::string& value) {
 
 }  // namespace
 
-bool validateQuestion(const Question& question) {
-    if (isBlank(question.text) || question.text.size() > kMaxQuestionLength ||
-        question.options.size() != kOptionCount || question.correctIndex < 0 ||
-        static_cast<std::size_t>(question.correctIndex) >= kOptionCount) {
-        return false;
+// OQS-SR-003
+std::string questionError(const Question& question) {
+    if (isBlank(question.text)) {
+        return "question text is empty";
     }
-
+    if (question.text.size() > kMaxQuestionLength) {
+        return "question text is longer than 512 characters";
+    }
+    if (question.options.size() != kOptionCount) {
+        return "expected 4 options, found " + std::to_string(question.options.size());
+    }
     for (std::size_t i = 0; i < question.options.size(); ++i) {
-        const std::string& option = question.options[i];
-        if (isBlank(option) || option.size() > kMaxOptionLength) {
-            return false;
+        if (isBlank(question.options[i])) {
+            return "option " + std::to_string(i + 1) + " is empty";
         }
-
+    }
+    for (std::size_t i = 0; i < question.options.size(); ++i) {
+        if (question.options[i].size() > kMaxOptionLength) {
+            return "option " + std::to_string(i + 1) + " is longer than 256 characters";
+        }
+    }
+    for (std::size_t i = 0; i < question.options.size(); ++i) {
         for (std::size_t j = 0; j < i; ++j) {
-            if (option == question.options[j]) {
-                return false;
+            if (question.options[i] == question.options[j]) {
+                return "option " + std::to_string(i + 1) + " duplicates option " + std::to_string(j + 1);
             }
         }
     }
-
-    return true;
+    if (!isValidOptionIndex(question, question.correctIndex)) {
+        return "correct answer is not one of the options";
+    }
+    return "";
 }
 
+// OQS-F-005
+bool validateQuestion(const Question& question) {
+    return questionError(question).empty();
+}
+
+// OQS-SR-003
+std::vector<Question> filterValidQuestions(const std::vector<Question>& records,
+                                           std::ostream& errors) {
+    std::vector<Question> valid;
+    valid.reserve(records.size());
+    for (std::size_t i = 0; i < records.size(); ++i) {
+        const std::string reason = questionError(records[i]);
+        if (reason.empty()) {
+            valid.push_back(records[i]);
+        } else {
+            errors << "Rejected question " << i << ": " << reason << '\n';
+        }
+    }
+    return valid;
+}
+
+// OQS-F-004
 std::vector<Question> loadQuestions() {
     const std::vector<Question> builtInQuestions = {
         {"What is the primary role of a CPU?",
@@ -60,25 +93,24 @@ std::vector<Question> loadQuestions() {
          1},
     };
 
-    std::vector<Question> validQuestions;
-    validQuestions.reserve(builtInQuestions.size());
-
-    for (std::size_t i = 0; i < builtInQuestions.size(); ++i) {
-        if (validateQuestion(builtInQuestions[i])) {
-            validQuestions.push_back(builtInQuestions[i]);
-        } else {
-            std::cerr << "Skipping invalid built-in question at index " << i << '\n';
-        }
-    }
-
-    return validQuestions;
+    return filterValidQuestions(builtInQuestions, std::cerr);
 }
 
 const Question& getQuestion(const std::vector<Question>& bank, std::size_t index) {
-    if (index >= bank.size()) {
+    if (!isValidQuestionIndex(bank, index)) {
         throw std::out_of_range("question index is out of range");
     }
     return bank[index];
+}
+
+// OQS-SR-002
+bool isValidQuestionIndex(const std::vector<Question>& bank, std::size_t index) {
+    return index < bank.size();
+}
+
+// OQS-SR-002
+bool isValidOptionIndex(const Question& question, int option) {
+    return option >= 0 && static_cast<std::size_t>(option) < question.options.size();
 }
 
 }  // namespace oqs
