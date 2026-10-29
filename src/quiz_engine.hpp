@@ -10,6 +10,12 @@
 
 namespace oqs {
 
+// OQS-SR-001: longest input line accepted at any answer prompt.
+constexpr std::size_t kMaxInputLength = 256;
+
+// OQS-SR-001: true if input is within the limit and has no disallowed control characters.
+bool isSafeInput(const std::string& input);
+
 // 0 -> 'A', 1 -> 'B', ...
 char optionLabel(std::size_t index);
 

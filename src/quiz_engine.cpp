@@ -42,6 +42,26 @@ std::string trimWhitespace(const std::string& input) {
 
 }  // namespace
 
+// OQS-SR-001: validates bounded input and rejects disallowed control characters.
+bool isSafeInput(const std::string& input) {
+    if (input.size() > kMaxInputLength) {
+        return false;
+    }
+
+    for (std::size_t i = 0; i < input.size(); ++i) {
+        const unsigned char character =
+            static_cast<unsigned char>(input[i]);
+
+        if ((character < 0x20 && character != '\t' &&
+             !(character == '\r' && i == input.size() - 1)) ||
+            character == 0x7F) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 char optionLabel(std::size_t index) {
     if (index >= 26) {
         return '?';
@@ -58,6 +78,10 @@ void displayQuestion(std::ostream& out, const std::string& text,
 }
 
 std::optional<int> parseAnswer(const std::string& input, std::size_t optionCount) {
+    if (!isSafeInput(input)) {
+        return std::nullopt;
+    }
+
     const std::string trimmed = trimWhitespace(input);
     if (trimmed.size() != 1) {
         return std::nullopt;
