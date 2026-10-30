@@ -290,7 +290,12 @@ bool waitForEnter(std::istream& in, std::ostream& out, const std::string& action
     return true;
 }
 
-void showResultPanel(std::ostream& out, const std::vector<std::string>& lines) {
+namespace {
+
+constexpr std::size_t kResultBarWidth = 30;
+
+void drawResultPanel(std::ostream& out, const std::vector<std::string>& lines,
+                     std::optional<double> percentage) {
     if (!styled) {
         for (const std::string& line : lines) {
             out << line << '\n';
@@ -308,8 +313,40 @@ void showResultPanel(std::ostream& out, const std::vector<std::string>& lines) {
     for (const std::string& line : lines) {
         boxRow(out, inner, line, Tone::Highlight);
     }
+
+    if (percentage) {
+        const double pct = std::clamp(*percentage, 0.0, 100.0);
+        const auto filled = static_cast<std::size_t>(pct / 100.0 * kResultBarWidth + 0.5);
+        std::ostringstream label;
+        label.setf(std::ios::fixed);
+        label.precision(1);
+        label << pct << '%';
+        const Tone tone = pct >= 80.0 ? Tone::Success : pct >= 50.0 ? Tone::Accent : Tone::Error;
+        const std::string rating = pct >= 80.0   ? "Excellent work!"
+                                   : pct >= 50.0 ? "Good effort!"
+                                                 : "Keep practising!";
+
+        boxRow(out, inner, "", Tone::Highlight);
+        const std::size_t used = kResultBarWidth + 1 + label.str().size();
+        out << "  │  " << paint(repeat("█", filled), tone)
+            << paint(repeat("░", kResultBarWidth - filled), Tone::Muted) << ' '
+            << paint(label.str(), tone) << std::string(inner - 4 - used, ' ') << "  │\n";
+        boxRow(out, inner, rating, tone);
+    }
+
     boxRow(out, inner, "", Tone::Highlight);
     boxBottom(out, inner);
+}
+
+}  // namespace
+
+void showResultPanel(std::ostream& out, const std::vector<std::string>& lines) {
+    drawResultPanel(out, lines, std::nullopt);
+}
+
+void showResultPanel(std::ostream& out, const std::vector<std::string>& lines,
+                     double percentage) {
+    drawResultPanel(out, lines, percentage);
 }
 
 std::optional<ReplayChoice> promptReplay(std::istream& in, std::ostream& out) {

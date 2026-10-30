@@ -55,6 +55,10 @@ void testReplayStartsFreshAttempt() {
     check(contains(r.output, "Final score for Sarah: 1 / 5"),
           "second attempt is scored on its own answers");
     check(count(r.output, "Question 1 of 5") == 2, "replay asks every question again");
+    check(contains(r.output, "Player: Sarah\nScore: 5 / 5\nPercentage: 100.0%"),
+          "first result shows the full summary with 100.0%");
+    check(contains(r.output, "Player: Sarah\nScore: 1 / 5\nPercentage: 20.0%"),
+          "replay result shows its own summary with 20.0%");
     check(contains(r.output, "Thanks for playing, Sarah! Goodbye."), "exit says goodbye");
 }
 

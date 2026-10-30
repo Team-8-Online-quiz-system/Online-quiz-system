@@ -16,9 +16,12 @@ namespace oqs {
 
 namespace {
 
+// Final score headline, then the result summary (OQS-F-016, OQS-F-018).
 std::vector<std::string> resultLines(const SessionState& session, int finalScore) {
     std::ostringstream text;
     showFinalScore(text, session.playerName, finalScore, session.totalQuestions);
+    text << '\n';
+    showResultSummary(text, session.playerName, finalScore, session.totalQuestions);
 
     std::vector<std::string> lines;
     std::istringstream stream(text.str());
@@ -66,11 +69,19 @@ int runApp(std::istream& in, std::ostream& out, std::ostream& err) {
         }
 
         const int finalScore = calculateFinalScore(session.acceptedResponses, answerKey(bank));
+        // OQS-SR-005: never report a score outside 0..total.
+        if (!isScoreInRange(finalScore, session.totalQuestions) ||
+            finalScore != session.score) {
+            err << "Internal error: the final score is inconsistent. Exiting.\n";
+            return 1;
+        }
+
         ui::clearScreen(out);
         if (!ui::styledOutput()) {
             out << '\n';
         }
-        ui::showResultPanel(out, resultLines(session, finalScore));
+        ui::showResultPanel(out, resultLines(session, finalScore),
+                            calculatePercentage(finalScore, session.totalQuestions));
 
         const auto again = ui::promptReplay(in, out);
         if (!again || *again == ui::ReplayChoice::Exit) {

@@ -23,7 +23,15 @@ bool contains(const std::string& text, const std::string& part) {
     return text.find(part) != std::string::npos;
 }
 
-const std::string kRendered = "What is 2 + 2?\n  A) 3\n  B) 4\n  C) 5\n  D) 22\n";
+std::string repeatBlock(std::size_t count) {
+    std::string blocks;
+    for (std::size_t i = 0; i < count; ++i) {
+        blocks += "█";
+    }
+    return blocks;
+}
+
+const std::string kRendered ="What is 2 + 2?\n  A) 3\n  B) 4\n  C) 5\n  D) 22\n";
 
 void testPlainOutputIsUnchanged() {
     oqs::ui::setStyledOutput(false);
@@ -52,6 +60,11 @@ void testPlainOutputIsUnchanged() {
     std::ostringstream panel;
     oqs::ui::showResultPanel(panel, {"Final score for Sarah: 4 / 5"});
     check(panel.str() == "Final score for Sarah: 4 / 5\n", "plain result panel prints its lines");
+
+    std::ostringstream withPercentage;
+    oqs::ui::showResultPanel(withPercentage, {"Final score for Sarah: 4 / 5"}, 80.0);
+    check(withPercentage.str() == "Final score for Sarah: 4 / 5\n",
+          "plain result panel adds no bar for the percentage");
 }
 
 void testStyledOutput() {
@@ -98,6 +111,18 @@ void testStyledOutput() {
     check(contains(panel.str(), "YOUR RESULT") && contains(panel.str(), "╭") &&
               contains(panel.str(), "Final score for Sarah: 4 / 5"),
           "styled result panel draws a titled box");
+
+    std::ostringstream high;
+    oqs::ui::showResultPanel(high, {"Score: 4 / 5"}, 80.0);
+    check(contains(high.str(), repeatBlock(24)) && contains(high.str(), "80.0%") &&
+              contains(high.str(), "Excellent work!"),
+          "styled result shows an 80% bar with a rating");
+
+    std::ostringstream low;
+    oqs::ui::showResultPanel(low, {"Score: 1 / 5"}, 20.0);
+    check(contains(low.str(), "20.0%") && contains(low.str(), "Keep practising!") &&
+              !contains(low.str(), repeatBlock(7)),
+          "styled result shows a short bar and encouragement at 20%");
 
     oqs::ui::setStyledOutput(false);
 }

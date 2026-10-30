@@ -21,6 +21,9 @@ jobs:
             exit 1
           fi
 
+      - name: Check for command execution and unsafe formats (OQS-SR-004)
+        run: bash scripts/check_unsafe_calls.sh
+
       - name: Build
         run: make
 
@@ -33,7 +36,9 @@ jobs:
           grep -q "Welcome, Team8" output.txt
           grep -q "Question 5 of 5" output.txt
           grep -q "Final score for Team8: 5 / 5" output.txt
+          grep -q "Percentage: 100.0%" output.txt
           grep -q "Starting a new attempt. Your score is back to 0." output.txt
           grep -q "Final score for Team8: 1 / 5" output.txt
+          grep -q "Percentage: 20.0%" output.txt
           grep -q "Thanks for playing, Team8! Goodbye." output.txt
           if grep -q $'\x1b\[' output.txt; then echo "Piped output must be plain"; exit 1; fi
