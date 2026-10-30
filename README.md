@@ -74,3 +74,4 @@ Invalid input never advances the quiz or changes the score.
 ## Sprint demos
 
 - [Sprint 1 demo](demo/sprint1-demo.mp4): start the quiz, enter a name, answer every question with feedback and progress, and see the final score.
+- [Sprint 2 demo](demo/sprint2-demo.mp4): the final version in the styled TUI, with progress bar and live score, coloured feedback, the result summary with percentage, and exit.
