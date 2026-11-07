@@ -1,7 +1,9 @@
 #include "scoring.hpp"
 
+#include <iomanip>
 #include <limits>
 #include <ostream>
+#include <sstream>
 #include <stdexcept>
 
 namespace oqs {
@@ -63,6 +65,35 @@ void showFinalScore(std::ostream& out, const std::string& playerName, int score,
                     std::size_t totalQuestions) {
     out << "Final score for " << playerName << ": " << score << " / "
         << totalQuestions << '\n';
+}
+
+double calculatePercentage(int score, std::size_t totalQuestions) {
+    if (totalQuestions == 0) {
+        return 0.0;
+    }
+    return (static_cast<double>(score) / static_cast<double>(totalQuestions)) * 100.0;
+}
+
+std::string formatPercentage(double percentage) {
+    std::ostringstream formatted;
+    formatted << std::fixed << std::setprecision(1) << percentage << '%';
+    return formatted.str();
+}
+
+bool isScoreInRange(int score, std::size_t totalQuestions) {
+    return score >= 0 && static_cast<std::size_t>(score) <= totalQuestions;
+}
+
+void showResultSummary(std::ostream& out, const std::string& playerName, int score,
+                       std::size_t totalQuestions) {
+    if (!isScoreInRange(score, totalQuestions)) {
+        throw std::out_of_range("The score is outside the valid quiz range.");
+    }
+
+    out << "Player: " << playerName << '\n'
+        << "Score: " << score << " / " << totalQuestions << '\n'
+        << "Percentage: "
+        << formatPercentage(calculatePercentage(score, totalQuestions)) << '\n';
 }
 
 }  // namespace oqs

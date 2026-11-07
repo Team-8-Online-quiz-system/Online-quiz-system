@@ -28,6 +28,19 @@ int calculateFinalScore(const std::vector<int>& responses,
 void showFinalScore(std::ostream& out, const std::string& playerName, int score,
                     std::size_t totalQuestions);
 
+// OQS-F-017: Returns 0.0 when there are no questions.
+double calculatePercentage(int score, std::size_t totalQuestions);
+
+// OQS-F-017: Formats a percentage with one decimal place.
+std::string formatPercentage(double percentage);
+
+// OQS-SR-005
+bool isScoreInRange(int score, std::size_t totalQuestions);
+
+// OQS-F-018
+void showResultSummary(std::ostream& out, const std::string& playerName, int score,
+                       std::size_t totalQuestions);
+
 }  // namespace oqs
 
 #endif  // OQS_SCORING_HPP
