@@ -11,6 +11,7 @@ make          # builds ./quiz
 ./quiz
 make test     # builds and runs every tests/test_*.cpp
 make clean
+bash scripts/coverage.sh   # runs all tests with coverage and prints line/branch coverage per file
 ```
 
 On Windows with MSYS2, use `mingw32-make` in place of `make`, and build with the **UCRT64** toolchain (put `C:\msys64\ucrt64\bin` first on `PATH`); the MinGW64 g++ on some machines exits without output.
@@ -70,6 +71,8 @@ Invalid input never advances the quiz or changes the score.
 | Requirements Traceability Matrix | [`docs/RTM.md`](docs/RTM.md) |
 | Test Summary Report | [`docs/TEST_SUMMARY.md`](docs/TEST_SUMMARY.md) |
 | Test results per module | [`docs/test-results/`](docs/test-results/) |
+| Jira board (sprints, backlog, reports) | [online-quiz-system.atlassian.net](https://online-quiz-system.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog) |
+| GitHub Project board | [Online Quiz System project](https://github.com/orgs/Team-8-Online-quiz-system/projects/13) |
 
 ## Sprint demos
 
